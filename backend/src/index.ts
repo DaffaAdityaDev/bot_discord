@@ -1,6 +1,11 @@
 import fs from 'fs';
 import path from 'path';
-import { Client, ClientOptions, Collection, GatewayIntentBits } from 'discord.js';
+import {
+  Client,
+  ClientOptions,
+  Collection,
+  GatewayIntentBits,
+} from 'discord.js';
 import dotenv from 'dotenv';
 import { REST } from '@discordjs/rest';
 import { Routes } from 'discord-api-types/v9';
@@ -22,14 +27,25 @@ const commands = [];
 const commandFolders = fs.readdirSync(path.join(__dirname, '/commands'));
 
 for (const folder of commandFolders) {
-  const commandFiles = fs.readdirSync(path.join(__dirname, '/commands', folder)).filter(file => file.endsWith('.ts'));
+  const commandFiles = fs
+    .readdirSync(path.join(__dirname, '/commands', folder))
+    .filter((file) => file.endsWith('.ts'));
   for (const file of commandFiles) {
-    const command = require(path.join(__dirname, '/commands', folder, file)).default;
-    if ('data' in command && 'execute' in command) {
+    const command = require(
+      path.join(__dirname, '/commands', folder, file),
+    ).default;
+    if (command && 'data' in command && 'execute' in command) {
       client.commands.set(command.data.name, command);
       commands.push(command.data.toJSON());
     } else {
-      console.log(`[WARNING] The command at ${path.join(__dirname, '/commands', folder, file)} is missing a required "data" or "execute" property.`);
+      console.log(
+        `[WARNING] The command at ${path.join(
+          __dirname,
+          '/commands',
+          folder,
+          file,
+        )} is missing a required "data" or "execute" property.`,
+      );
     }
   }
 }
@@ -39,20 +55,27 @@ const rest = new REST({ version: '9' }).setToken(process.env.BOT_TOKEN!);
 
 (async () => {
   try {
-    console.log(`Started refreshing ${commands.length} application (/) commands.`);
+    console.log(
+      `Started refreshing ${commands.length} application (/) commands.`,
+    );
 
-    const data = await rest.put(
-      Routes.applicationGuildCommands(process.env.CLIENT_ID!, process.env.GUILD_ID!),
+    const data = (await rest.put(
+      Routes.applicationGuildCommands(
+        process.env.CLIENT_ID!,
+        process.env.GUILD_ID!,
+      ),
       { body: commands },
-    ) as unknown[];
+    )) as unknown[];
 
-    console.log(`Successfully reloaded ${data.length} application (/) commands.`);
+    console.log(
+      `Successfully reloaded ${data.length} application (/) commands.`,
+    );
   } catch (error) {
     console.error(error);
   }
 })();
 
-client.on('interactionCreate', async interaction => {
+client.on('interactionCreate', async (interaction) => {
   if (!interaction.isCommand()) return;
   const command = client.commands.get(interaction.commandName);
   if (!command) return;
@@ -61,7 +84,10 @@ client.on('interactionCreate', async interaction => {
     await command.execute(interaction);
   } catch (error) {
     console.error(error);
-    await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
+    await interaction.reply({
+      content: 'There was an error while executing this command!',
+      ephemeral: true,
+    });
   }
 });
 
@@ -70,4 +96,3 @@ client.once('ready', () => {
 });
 
 client.login(process.env.BOT_TOKEN);
-

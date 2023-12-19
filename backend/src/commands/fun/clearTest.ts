@@ -1,5 +1,9 @@
-import { SlashCommandBuilder } from 'discord.js';
-import { CommandInteraction, TextChannel, ChannelType } from 'discord.js';
+import {
+  SlashCommandBuilder,
+  CommandInteraction,
+  TextChannel,
+  ChannelType,
+} from 'discord.js';
 
 const data = new SlashCommandBuilder()
   .setName('cleartest')
@@ -7,7 +11,10 @@ const data = new SlashCommandBuilder()
 
 const execute = async (interaction: CommandInteraction) => {
   if (!interaction.guild) return;
-  const testChannel = interaction.guild.channels.cache.find(channel => channel.name === 'test' && channel.type === ChannelType.GuildText) as TextChannel;
+  const testChannel = interaction.guild.channels.cache.find(
+    (channel) =>
+      channel.name === 'test' && channel.type === ChannelType.GuildText,
+  ) as TextChannel;
   if (!testChannel) return;
   const messages = await testChannel.messages.fetch();
   testChannel.bulkDelete(messages);
@@ -16,7 +23,7 @@ const execute = async (interaction: CommandInteraction) => {
 
 const command = {
   data,
-  execute
+  execute,
 };
 
 export default command;

@@ -1,5 +1,5 @@
-import { SlashCommandBuilder } from "discord.js";
-import { CommandInteraction } from "discord.js";
+import { SlashCommandBuilder } from 'discord.js';
+import { CommandInteraction } from 'discord.js';
 
 const data = new SlashCommandBuilder()
   .setName('ping')
@@ -11,7 +11,7 @@ const execute = async (interaction: CommandInteraction) => {
 
 const command = {
   data,
-  execute
+  execute,
 };
 
 export default command;
