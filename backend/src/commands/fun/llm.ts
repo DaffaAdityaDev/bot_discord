@@ -133,7 +133,6 @@ const execute = async (interaction: CommandInteraction) => {
 
         for (const chunk of messageChunks) {
           if (chunk) {
-            
             // Prepend 'User' to the user's message
             await interaction.channel.send(chunk);
           }
