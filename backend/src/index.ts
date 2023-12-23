@@ -71,7 +71,7 @@ const rest = new REST({ version: '9' }).setToken(process.env.BOT_TOKEN!);
       `Successfully reloaded ${data.length} application (/) commands.`,
     );
   } catch (error) {
-    console.error(error);
+    console.log(error);
   }
 })();
 
