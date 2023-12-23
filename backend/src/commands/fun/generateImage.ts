@@ -93,6 +93,30 @@ const data = new SlashCommandBuilder()
       .setName('custom_model')
       .setDescription('Input a custom model')
       .setRequired(false),
+  )
+  .addStringOption((option) =>
+    option
+      .setName('resolution_x')
+      .setDescription('Input a Resolution for X')
+      .addChoices(
+        { name: '256', value: '256' },
+        { name: '512', value: '512' },
+        { name: '768', value: '768' },
+        { name: '1024', value: '1024' },
+        { name: '2048', value: '2048' },
+      ),
+  )
+  .addStringOption((option) =>
+    option
+      .setName('resolution_y')
+      .setDescription('Input a Resolution for Y')
+      .addChoices(
+        { name: '256', value: '256' },
+        { name: '512', value: '512' },
+        { name: '768', value: '768' },
+        { name: '1024', value: '1024' },
+        { name: '2048', value: '2048' },
+      ),
   );
 
 const execute = async (interaction: CommandInteraction) => {

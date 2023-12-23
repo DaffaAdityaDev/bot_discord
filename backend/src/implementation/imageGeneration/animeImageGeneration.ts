@@ -76,7 +76,30 @@ async function deleteTextAndTypeIntoInput(
 }
 
 // function to drag slider
-async function dragSlider(page: Page, selector: string, distance: number) {
+async function dragSlider(page: Page, selector: string, res?: string) {
+  let distance = 0;
+
+  switch (res) {
+    case '256':
+      distance = -30;
+      break;
+    case '512':
+      distance = 0;
+      break;
+    case '768':
+      distance = 10;
+      break;
+    case '1024':
+      distance = 30;
+      break;
+    case '2048':
+      distance = 10;
+      break;
+    default:
+      distance = 0;
+      break;
+  }
+
   await page.waitForSelector(selector);
   const element = await page.$(selector);
   if (element) {
@@ -118,7 +141,7 @@ async function openNewTab(page: Page, selector: string) {
 }
 
 // function to handle new tab
-async function handleNewTab(page: Page, filename: string, browser: Browser) {
+async function handleNewTab(page: Page, browser: Browser): Promise<Buffer | undefined> {
   // Get all the pages in the browser
   const pages = await browser.pages();
 
@@ -128,11 +151,18 @@ async function handleNewTab(page: Page, filename: string, browser: Browser) {
   // Wait for the image to load in the new tab
   await newTab.waitForSelector('img');
 
+  // Wait for the image to fully load
+  await newTab.waitForFunction(
+    'document.querySelector("img").complete'
+  );
+
   // Get the image element
   const image = await newTab.$('img');
 
-  // Take a screenshot of only the image
-  await image?.screenshot({ path: `./src/commands/fun/ss/${filename}7.png` });
+  // takeScreenshot(page, 'newTab'); // uncomment this line to take a screenshot of the new tab
+
+  // Take a screenshot of only the image and return it as a Buffer
+  return image?.screenshot();
 }
 
 // function to generate image
@@ -144,6 +174,11 @@ async function animeImageGeneration(interaction: CommandInteraction) {
   await page.goto('https://omniinfer.io/demo', { waitUntil: 'networkidle0' });
   const query = interaction.options.get('query')?.value as string;
   const model = interaction.options.get('model')?.value as string;
+  const resolution_x = interaction.options.get('resolution_x')?.value as string;
+  const resolution_y = interaction.options.get('resolution_y')?.value as string;
+
+  console.log('start generate Image');
+  console.log(resolution_x, resolution_y);
 
   try {
     // wait for the selector to load
@@ -171,57 +206,65 @@ async function animeImageGeneration(interaction: CommandInteraction) {
 
     // open resolution
     await waitAndClick(page, SELECTOR.SELECTOR_RESOLUTION_OPEN);
-    await takeScreenshot(page, `${filename}2.1`);
-    await dragSlider(page, SELECTOR.SELECTOR_RESOLUTION_X, -10);
 
-    await takeScreenshot(page, `${filename}2.2`);
+    // await takeScreenshot(page, `${filename}2.1`); // uncomment this line to take a screenshot debug
+
+    await dragSlider(page, SELECTOR.SELECTOR_RESOLUTION_X, resolution_x);
+
+    // await takeScreenshot(page, `${filename}2.2`); // uncomment this line to take a screenshot debug
 
     await waitAndClick(page, SELECTOR.SELECTOR_RESOLUTION_Y);
-    await takeScreenshot(page, `${filename}2.3`);
-    await dragSlider(page, SELECTOR.SELECTOR_RESOLUTION_Y, -10);
-    await takeScreenshot(page, `${filename}2.4`);
+
+    // await takeScreenshot(page, `${filename}2.3`); // uncomment this line to take a screenshot debug
+
+    await dragSlider(page, SELECTOR.SELECTOR_RESOLUTION_Y, resolution_y);
+
+    // await takeScreenshot(page, `${filename}2.4`); // uncomment this line to take a screenshot debug
     // close resolution
     await waitAndClick(page, SELECTOR.SELECTOR_RESOLUTION_CLOSE);
-    await takeScreenshot(page, `${filename}2.6`);
+
+    // await takeScreenshot(page, `${filename}2.6`); // uncomment this line to take a screenshot debug
 
     // click generate button
     await waitAndClick(page, SELECTOR.SELECTOR_GENERATE);
-    await takeScreenshot(page, `${filename}3`);
 
-    await takeScreenshot(page, `${filename}3.5`);
+    // await takeScreenshot(page, `${filename}3`); // uncomment this line to take a screenshot debug
+
 
     // If the element is found and is visible, wait for it to disappear.
     await waitAndClick(page, SELECTOR.SELECTOR_LOADING, 100000, true);
-    await takeScreenshot(page, `${filename}4`);
+
+    // await takeScreenshot(page, `${filename}4`); // uncomment this line to take a screenshot debug
 
     // If the element is found and is visible, wait for it to disappear.
     await page.waitForSelector('div.ant-spin-text', { hidden: true });
 
     await waitAndClick(page, SELECTOR.SELECTOR_IMAGE);
-    await takeScreenshot(page, `${filename}5`);
+
+    // await takeScreenshot(page, `${filename}5`); // uncomment this line to take a screenshot debug
 
     await page.waitForSelector(
       '#__next > div > div > div.style_preview_wrap__egOoP > div.style_info_content__50R90 > div.style_img_wrap__1rz_t > img',
       { visible: true },
     );
 
-    await page.screenshot({ path: `./src/commands/fun/ss/${filename}6.png` });
+    // await page.screenshot({ path: `./src/commands/fun/ss/${filename}6.png` }); // uncomment this line to take a screenshot debug
 
     // promise new tab
     await openNewTab(page, SELECTOR.SELECTOR_IMAGE_PREVIEW);
 
     // resolve new tab
-    await handleNewTab(page, filename, browser);
+    let generatedImage = await handleNewTab(page, browser);
 
     await interaction.editReply({
       content: `
-      :robot: Ini Gambar Dari Model ${model} :robot: \n
+      :robot: Ini Gambar Dari Model ${model} :robot: \n Resolution X: ${resolution_x} \n Resolution Y: ${resolution_y} \n
       :cold_face: Ini Gambar Lu: \n 
       ${query} 
       `,
       files: [
         {
-          attachment: `./src/commands/fun/ss/${filename}7.png`,
+          attachment: generatedImage as Buffer,
           name: `${filename}.png`,
         },
       ],
