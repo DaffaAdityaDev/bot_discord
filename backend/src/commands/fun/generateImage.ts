@@ -15,6 +15,12 @@ const data = new SlashCommandBuilder()
   )
   .addStringOption((option) =>
     option
+      .setName('negative_query')
+      .setDescription('negative_query')
+      .setRequired(false),
+  )
+  .addStringOption((option) =>
+    option
       .setName('model')
       .setDescription('The model')
       .addChoices(
@@ -85,13 +91,11 @@ const data = new SlashCommandBuilder()
           name: 'MeinaUnreal',
           value: 'MeinaUnreal',
         },
+        {
+          name: 'SD XL 1.0',
+          value: 'SD XL 1.0',
+        }
       )
-      .setRequired(false),
-  )
-  .addStringOption((option) =>
-    option
-      .setName('custom_model')
-      .setDescription('Input a custom model')
       .setRequired(false),
   )
   .addStringOption((option) =>
@@ -117,6 +121,12 @@ const data = new SlashCommandBuilder()
         { name: '1024', value: '1024' },
         { name: '2048', value: '2048' },
       ),
+  )
+  .addStringOption((option) =>
+    option
+      .setName('seed')
+      .setDescription('Input a seed and only number')
+      .setRequired(false),
   );
 
 const execute = async (interaction: CommandInteraction) => {
